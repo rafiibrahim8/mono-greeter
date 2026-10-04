@@ -45,8 +45,9 @@ foot --config dist/foot.ini target/release/mono-greeter --demo    # the real loo
 
 ## Install
 
-Requires `greetd`, `cage`, `foot` and `ttf-hack-nerd`. Optional: `xorg-xinit` for X11 sessions,
-`kwallet-pam` or `gnome-keyring` to unlock the wallet/keyring at login.
+Requires `greetd`, `cage` and `foot`. Optional: `ttf-hack-nerd` for the intended font (without it
+the system's default monospace font is used), `xorg-xinit` for X11 sessions, `kwallet-pam` or
+`gnome-keyring` to unlock the wallet/keyring at login.
 
 - **Arch Linux:** `mono-greeter-bin` from the linux-gems repository.
 - **Release tarball:** unpack it, then `sudo ./install.sh`. That installs into `/usr/local`;
@@ -99,7 +100,7 @@ reboot
 
 | What | Where |
 |---|---|
-| Font and size | `/etc/mono-greeter/foot.ini` (any monospace font foot can use) |
+| Font and size | `/etc/mono-greeter/foot.ini`: Hack Nerd Font Mono, else the default monospace font; any monospace font foot can use |
 | Login rules (PAM) | `/etc/pam.d/mono-greeter`, for example to add a security key or fingerprint |
 | Sessions | `.desktop` files in `/usr/share/wayland-sessions` and `/usr/share/xsessions` |
 | Users | accounts in `/etc/passwd` in the normal-user UID range, with a login shell |

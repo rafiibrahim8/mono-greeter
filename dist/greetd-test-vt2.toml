@@ -8,6 +8,6 @@ vt = 2
 service = "mono-greeter"
 
 [default_session]
-command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
+command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind XDG_CACHE_HOME=/var/cache/mono-greeter cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
 user = "greeter"
 service = "greetd"

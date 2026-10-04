@@ -9,7 +9,8 @@ service = "mono-greeter"
 
 [default_session]
 # cage -s keeps Ctrl+Alt+F<n> working; LIBSEAT_BACKEND=logind skips the seatd probe;
+# XDG_CACHE_HOME gives the GPU shader and font caches a writable home (greeter's home is /);
 # systemd-cat sends cage's log to the journal (journalctl -t mono-greeter) instead of tty1.
-command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
+command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind XDG_CACHE_HOME=/var/cache/mono-greeter cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
 user = "greeter"
 service = "greetd"
