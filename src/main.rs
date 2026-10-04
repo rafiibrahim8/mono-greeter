@@ -12,7 +12,7 @@ use crossterm::{
         PushKeyboardEnhancementFlags,
     },
     execute,
-    terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{
@@ -107,7 +107,7 @@ fn set_terminal_colors(out: &mut impl Write) -> io::Result<()> {
 fn run(make_app: impl FnOnce(bool) -> App, ev_rx: mpsc::Receiver<greetd::Ev>) -> io::Result<Option<Exit>> {
     terminal::enable_raw_mode()?;
     let mut out = io::stdout();
-    execute!(out, EnterAlternateScreen, EnableMouseCapture, SetCursorStyle::BlinkingBlock)?;
+    execute!(out, EnterAlternateScreen, Clear(ClearType::All), EnableMouseCapture, SetCursorStyle::BlinkingBlock)?;
     set_terminal_colors(&mut out)?;
     let hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
@@ -128,8 +128,9 @@ fn run(make_app: impl FnOnce(bool) -> App, ev_rx: mpsc::Receiver<greetd::Ev>) ->
         )?;
     }
 
+    // Not terminal.clear(): since ratatui 0.30 it asks the terminal for the cursor position
+    // and fails when the terminal doesn't answer.
     let mut terminal = Terminal::new(CrosstermBackend::new(out))?;
-    terminal.clear()?;
     let theme = ui::Theme::pick();
     let mut app = make_app(enhanced);
 
