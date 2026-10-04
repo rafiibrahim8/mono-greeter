@@ -1,0 +1,13 @@
+# A trial run on tty2 while the current display manager keeps running:
+#   sudo greetd --config /usr/share/mono-greeter/greetd-test-vt2.toml
+# Sign in with the Shell session; a second desktop session for the same user would clash.
+[terminal]
+vt = 2
+
+[general]
+service = "mono-greeter"
+
+[default_session]
+command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
+user = "greeter"
+service = "greetd"

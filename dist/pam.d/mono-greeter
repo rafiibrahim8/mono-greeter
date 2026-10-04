@@ -1,0 +1,18 @@
+#%PAM-1.0
+# /etc/pam.d/mono-greeter: PAM stack for logins through mono-greeter (greetd's [general] service).
+# greetd's stock file, plus what desktop display managers add: password changes and wallet/keyring unlock.
+# A leading "-" skips a module that isn't installed.
+
+auth       required     pam_securetty.so
+auth       requisite    pam_nologin.so
+auth       include      system-local-login
+-auth      optional     pam_kwallet5.so
+-auth      optional     pam_gnome_keyring.so
+
+account    include      system-local-login
+
+password   include      system-local-login
+
+session    include      system-local-login
+-session   optional     pam_kwallet5.so auto_start
+-session   optional     pam_gnome_keyring.so auto_start

@@ -1,0 +1,62 @@
+# Push a tag like v0.1.0 (matching Cargo.toml's version) and this attaches to a GitHub Release:
+#   mono-greeter-<tag>-linux-x86_64.tar.gz   binary, greetd/foot/PAM/tmpfiles files, installer
+#   SHA256SUMS
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable, 2026-09
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: Tag matches Cargo.toml
+        run: |
+          version="$(cargo pkgid | sed 's/.*[#@]//')"
+          [ "v$version" = "$GITHUB_REF_NAME" ] || { echo "::error::tag $GITHUB_REF_NAME, Cargo.toml $version"; exit 1; }
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked
+
+  release:
+    name: Build and publish
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable, 2026-09
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: Build
+        run: cargo build --release --locked
+      - name: Package
+        run: |
+          set -eu
+          dir="mono-greeter-${GITHUB_REF_NAME}-linux-x86_64"
+          mkdir -p "$dir"
+          install -m 0755 target/release/mono-greeter "$dir/"
+          cp -r dist/foot.ini dist/greetd.toml dist/greetd-test-vt2.toml dist/greetd.service.d dist/pam.d dist/tmpfiles.conf "$dir/"
+          install -m 0755 dist/install-prebuilt.sh "$dir/install.sh"
+          install -m 0644 LICENSE README.md "$dir/"
+          tar czf "$dir.tar.gz" "$dir"
+          sha256sum "$dir.tar.gz" > SHA256SUMS
+          cat SHA256SUMS
+          echo "ASSET=$dir.tar.gz" >> "$GITHUB_ENV"
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            ${{ env.ASSET }}
+            SHA256SUMS
+          generate_release_notes: true

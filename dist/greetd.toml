@@ -1,0 +1,15 @@
+# greetd config for mono-greeter. greetd reads it through the greetd.service drop-in
+# (greetd --config), so /etc/greetd/config.toml stays untouched.
+[terminal]
+vt = 1
+
+[general]
+# user logins go through /etc/pam.d/mono-greeter (wallet unlock, password changes)
+service = "mono-greeter"
+
+[default_session]
+# cage -s keeps Ctrl+Alt+F<n> working; LIBSEAT_BACKEND=logind skips the seatd probe;
+# systemd-cat sends cage's log to the journal (journalctl -t mono-greeter) instead of tty1.
+command = "systemd-cat -t mono-greeter env LIBSEAT_BACKEND=logind cage -s -d -- foot --config /etc/mono-greeter/foot.ini /usr/bin/mono-greeter"
+user = "greeter"
+service = "greetd"
