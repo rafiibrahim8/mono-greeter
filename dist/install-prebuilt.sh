@@ -15,6 +15,8 @@ if [ "${1:-}" = "--from" ]; then from="$(cd "$2" && pwd)"; fi
 prefix="${PREFIX:-/usr/local}"
 dest="${DESTDIR:-}"
 share="$prefix/share/mono-greeter"
+# greetd runs the binary; it is not a command for users, so it lives outside bin/
+libexec="$prefix/lib/mono-greeter"
 
 [ -x "$from/mono-greeter" ] || { echo "missing $from/mono-greeter" >&2; exit 1; }
 if [ -z "$dest" ]; then
@@ -22,9 +24,9 @@ if [ -z "$dest" ]; then
   id greeter >/dev/null 2>&1 || { echo "no 'greeter' user: install greetd first (pacman -S greetd)" >&2; exit 1; }
 fi
 
-# The shipped files name /usr/bin and /usr/share; point them at this prefix.
+# The shipped files name /usr/lib and /usr/share; point them at this prefix.
 rewrite() {
-  sed -e "s|/usr/bin/mono-greeter|$prefix/bin/mono-greeter|" -e "s|/usr/share/mono-greeter/|$share/|" "$1" > "$2"
+  sed -e "s|/usr/lib/mono-greeter/|$libexec/|" -e "s|/usr/share/mono-greeter/|$share/|" "$1" > "$2"
   chmod 0644 "$2"
 }
 
@@ -38,7 +40,9 @@ install_conf() {
   fi
 }
 
-install -Dm755 "$from/mono-greeter" "$dest$prefix/bin/mono-greeter"
+install -Dm755 "$from/mono-greeter" "$dest$libexec/mono-greeter"
+# versions up to 0.1.2 installed it into bin/
+rm -f "$dest$prefix/bin/mono-greeter"
 install -dm755 "$dest$share" "$dest/etc/systemd/system/greetd.service.d"
 rewrite "$here/greetd.toml" "$dest$share/greetd.toml"
 rewrite "$here/greetd-test-vt2.toml" "$dest$share/greetd-test-vt2.toml"
@@ -55,7 +59,7 @@ if [ -z "$dest" ]; then
 fi
 
 cat <<EOF
-Installed mono-greeter to $prefix/bin; greetd now starts it (drop-in in /etc/systemd/system/greetd.service.d).
+Installed mono-greeter to $libexec; greetd now starts it (drop-in in /etc/systemd/system/greetd.service.d).
 To make greetd the login screen, disable the current display manager (if any) and enable greetd:
   readlink /etc/systemd/system/display-manager.service   # the current one; no output means none
   systemctl disable <that display manager> && systemctl enable greetd

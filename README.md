@@ -135,9 +135,9 @@ Re-enable another display manager first if greetd is your login screen.
 - **Package:** `sudo pacman -R mono-greeter-bin`
 - **Tarball or source install:**
   ```sh
-  sudo rm /usr/local/bin/mono-greeter /etc/tmpfiles.d/mono-greeter.conf /etc/pam.d/mono-greeter
+  sudo rm /etc/tmpfiles.d/mono-greeter.conf /etc/pam.d/mono-greeter
   sudo rm /etc/systemd/system/greetd.service.d/mono-greeter.conf
-  sudo rm -r /usr/local/share/mono-greeter /etc/mono-greeter /var/cache/mono-greeter
+  sudo rm -r /usr/local/lib/mono-greeter /usr/local/share/mono-greeter /etc/mono-greeter /var/cache/mono-greeter
   sudo systemctl daemon-reload
   ```
 
